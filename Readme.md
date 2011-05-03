@@ -1,0 +1,1 @@
+Send mail without SMTP
