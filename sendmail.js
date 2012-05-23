@@ -84,7 +84,8 @@ function connectMx(domain, callback) {
   });
 }
 
-function sendToSMTP(domain, srcHost, from, recipients, body, callback) {
+function sendToSMTP(domain, srcHost, from, recipients, body, cb) {
+var callback=(typeof cb=='function') ? cb : function(){};
   connectMx(domain, function(err, sock) {
 
       function w(s) {
@@ -139,7 +140,6 @@ function sendToSMTP(domain, srcHost, from, recipients, body, callback) {
           break;
 
         case 221: // bye
-          break;
         case 235: // verify ok
         case 250: // operation OK
         case 251: // foward
