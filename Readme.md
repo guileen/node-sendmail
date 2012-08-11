@@ -4,7 +4,7 @@ Send mail without SMTP
 sendmail = require('sendmail').sendmail;
 
 sendmail({
-    from: 'test@yourdomain.com',
+    from: 'no-reply@yourdomain.com',
     to: 'test@qq.com, test@sohu.com, test@163.com ',
     subject: 'test sendmail',
     content: 'Mail of test sendmail ',
