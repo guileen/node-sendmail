@@ -87,6 +87,9 @@ function connectMx(domain, callback) {
 function sendToSMTP(domain, srcHost, from, recipients, body, cb) {
 var callback=(typeof cb=='function') ? cb : function(){};
   connectMx(domain, function(err, sock) {
+      if(err){
+          return callback(err);
+      }
 
       function w(s) {
         log('S: ' + s);
