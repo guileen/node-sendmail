@@ -1,4 +1,12 @@
-Send mail without SMTP
+# node-sendmail
+
+Send mail without SMTP server
+
+### Install
+
+    npm install sendmail
+
+### Usage
 
 ```javascript
 sendmail = require('sendmail').sendmail;
