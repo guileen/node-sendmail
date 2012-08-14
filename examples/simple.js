@@ -1,4 +1,4 @@
-sendmail = require('../sendmail').sendmail;
+sendmail = require('../sendmail')();
 
 sendmail({
     from: 'test@yourdomain.com',

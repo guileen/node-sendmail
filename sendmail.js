@@ -3,9 +3,11 @@ var tcp = require('net'),
     CRLF = '\r\n';
 
 var exports = module.exports = function(options) {
-
-  function log(s) {
-    console.log(s);
+  var logger = options && options.logger || {
+    debug: console.log,
+    info: console.info,
+    warn: console.warn,
+    error: console.error
   }
 
   /*
@@ -59,7 +61,7 @@ var exports = module.exports = function(options) {
           return callback(err);
 
         data.sort(function(a, b) {return a.priority < b. priority});
-        console.dir(data);
+        logger.debug('mx resolved: ', data);
 
         if (!data || data.length == 0)
           return callback(new Error('can not resolve Mx of <' + domain + '>'));
@@ -71,11 +73,12 @@ var exports = module.exports = function(options) {
           var sock = tcp.createConnection(25, data[i].exchange);
 
           sock.on('error', function(err) {
-              console.log(err.stack);
+              logger.error('Error on connectMx for: ', data[i], err);
               tryConnect(++i);
           });
 
           sock.on('connect', function() {
+              logger.debug("MX connection created: ", data[i].exchange);
               sock.removeAllListeners('error');
               callback(null, sock);
           });
@@ -90,11 +93,12 @@ var exports = module.exports = function(options) {
     var callback=(typeof cb=='function') ? cb : function(){};
     connectMx(domain, function(err, sock) {
         if(err){
+          logger.error('error on connectMx', err.stack);
           return callback(err);
         }
 
         function w(s) {
-          log('S: ' + s);
+          logger.debug('send ' + domain + '>' + s);
           sock.write(s + CRLF);
         }
 
@@ -110,6 +114,7 @@ var exports = module.exports = function(options) {
         });
 
         sock.on('error', function(err) {
+            log.error('fail to connect ' + domain);
             callback(err);
         });
 
@@ -129,6 +134,7 @@ var exports = module.exports = function(options) {
         }
         queue.push('DATA');
         queue.push('QUIT');
+        queue.push('');
 
         function response(code, msg) {
           switch (code) {
@@ -149,6 +155,7 @@ var exports = module.exports = function(options) {
             case 250: // operation OK
             case 251: // foward
             if (step == queue.length) {
+              logger.info('OK:', code, msg);
               callback(null, msg);
             }
             w(queue[step]);
@@ -156,6 +163,7 @@ var exports = module.exports = function(options) {
             break;
 
             case 354: // start input end with . (dot)
+            logger.info('sending mail', body)
             w(body);
             w('');
             w('.');
@@ -168,16 +176,17 @@ var exports = module.exports = function(options) {
 
             default:
             if (code >= 400) {
+              logger.warn('SMTP responds error code', code);
               callback(code, msg);
               sock.end();
             }
           }
         }
 
-        var msg;
+        var msg = '';
 
         function on_line(line) {
-          log('R: ' + line);
+          logger.debug('recv ' + domain + '>' + line);
 
           msg += (line + CRLF);
 
