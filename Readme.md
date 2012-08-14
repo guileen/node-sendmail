@@ -9,7 +9,7 @@ Send mail without SMTP server
 ### Usage
 
 ```javascript
-sendmail = require('sendmail').sendmail;
+sendmail = require('sendmail')();
 
 sendmail({
     from: 'no-reply@yourdomain.com',
