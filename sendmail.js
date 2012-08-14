@@ -2,6 +2,8 @@ var tcp = require('net'),
     dns = require('dns'),
     CRLF = '\r\n';
 
+var exports = module.exports = function(options) {
+
 function log(s) {
   console.log(s);
 }
@@ -281,4 +283,6 @@ function sendmail(mail, callback) {
 
 }
 
-exports.sendmail = sendmail;
+return sendmail;
+
+}
