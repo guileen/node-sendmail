@@ -16,8 +16,10 @@ sendmail({
     to: 'test@qq.com, test@sohu.com, test@163.com ',
     subject: 'test sendmail',
     content: 'Mail of test sendmail ',
-  }, function(err, reply) {
+  }, function(err, receipient) {
     console.log(err && err.stack);
-    console.dir(reply);
+    console.dir(receipient);
 });
 ```
+
+Note that the callback function will be called for every receipient in separate.
