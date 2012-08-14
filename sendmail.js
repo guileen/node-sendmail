@@ -1,10 +1,49 @@
-var tcp = require('net'),
+var inspect = require('util').inspect
+    tcp = require('net'),
     dns = require('dns'),
     CRLF = '\r\n';
 
-function log(s) {
-  console.log(s);
-}
+//implement a default minimal conventional logger, based on console
+//logger implements ILog standard 
+//(to allow injecting a configuratble 3rd-party ILog like `log4js`, log4node`, `winston`, etc.)
+//implement using a closure. If log injected - all closure will be garbage-collected
+var log = 
+(function(){  
+  var level = 0,
+      levels = ("DEBUG,INFO,WARN,ERROR,FATAL").split(",")
+      map = Array.prototype.map,
+      logger = 
+      { emit : 
+          function(l, args) { 
+            if (l < level) return; //standard filter by level 
+            console.log(levels[l] + ":" + 
+              map.call(args, function(v,i){ //handle arbitrary number of arguments
+                return i && v ? //first argument (index zero) should always be a string and should not go through inspect
+                 ( v.stack ? 
+                      v.stack : 
+                      inspect(v) ) 
+                 : v 
+              }).join(" "))  
+          },
+        debug: function(){ this.emit(0,arguments ) },
+        info : function(){ this.emit(1,arguments ) },
+        warn : function(){ this.emit(2,arguments ) },
+        error: function(){ this.emit(3,arguments ) },
+        fatal: function(){ this.emit(4,arguments ) },
+        levels: levels
+      };
+  logger.__defineGetter__("level", function(){ return levels[level] });
+  logger.__defineSetter__("level", function(strLevel){ 
+    var iLevel = levels.indexOf(strLevel.toUpperCase());
+    if (iLevel == -1) return console.log(strLevel + " is not a level");
+    level = iLevel;
+  })
+  return logger;
+})()
+
+//define getters and setter to allow inject or reuse existing logger
+sendmail.__defineGetter__("log", function(){ return log });
+sendmail.__defineSetter__("log", function(oLog){ log = oLog });
 
 /*
  *   邮件服务返回代码含义
@@ -52,28 +91,38 @@ function group_recipients(recipients) {
  * connect to domain by Mx record
  */
 function connectMx(domain, callback) {
-  dns.resolveMx(domain, function(err, data) {
-      if (err)
-        return callback(err);
+  dns.resolveMx(domain, function(err, data) {  
+      if (err) { 
+          log.error("Error on resolveMx: " + err.stack);
+          return callback(err);
+      }
 
       data.sort(function(a, b) {return a.priority < b. priority});
-      console.dir(data);
+      log.info("mx resolved: ", data);
 
-      if (!data || data.length == 0)
-        return callback(new Error('can not resolve Mx of <' + domain + '>'));
+      if (!data || data.length == 0) {  
+        err = new Error('can not resolve Mx of <' + domain + '>');
+        log.error(e.stack);
+        return callback(err);
+      }
 
       function tryConnect(i) {
 
-        if (i >= data.length) return callback(new Error('can not connect to any SMTP server'));
+        if (i >= data.length) { 
+           err = new Error('can not connect to any SMTP server');
+           log.error(e.stack);
+           return callback(err);
+        }
 
         var sock = tcp.createConnection(25, data[i].exchange);
 
         sock.on('error', function(err) {
-            console.log(err.stack);
+            log.error("Error on connectMx for: ", data[i], err);
             tryConnect(++i);
         });
 
-        sock.on('connect', function() {
+        sock.on('connect', function() { 
+            log.debug("MX connection created: ", data[i].exchange);
             sock.removeAllListeners('error');
             callback(null, sock);
         });
@@ -85,14 +134,15 @@ function connectMx(domain, callback) {
 }
 
 function sendToSMTP(domain, srcHost, from, recipients, body, cb) {
-var callback=(typeof cb=='function') ? cb : function(){};
+  var callback=(typeof cb=='function') ? cb : function(){};
   connectMx(domain, function(err, sock) {
-      if(err){
-          return callback(err);
+      if(err){ 
+        log.error("error on connectMx", err.stack);
+        return callback(err);
       }
 
       function w(s) {
-        log('S: ' + s);
+        log.debug('write to socket: ', s);
         sock.write(s + CRLF);
       }
 
@@ -108,6 +158,7 @@ var callback=(typeof cb=='function') ? cb : function(){};
       });
 
       sock.on('error', function(err) {
+          log.error("error on connectMx socket", err);
           callback(err);
       });
 
@@ -146,14 +197,16 @@ var callback=(typeof cb=='function') ? cb : function(){};
         case 235: // verify ok
         case 250: // operation OK
         case 251: // foward
-          if (step == queue.length) {
-            callback(null, msg);
+          if (step == queue.length) { 
+            log.info("OK:", code, msg);
+            callback(null, recipients);
           }
           w(queue[step]);
           step++;
           break;
 
         case 354: // start input end with . (dot)
+          log.info("sending mail", body);
           w(body);
           w('');
           w('.');
@@ -165,23 +218,22 @@ var callback=(typeof cb=='function') ? cb : function(){};
           break;
 
         default:
-          if (code >= 400) {
+          if (code >= 400) { 
+            log.warn("SMTP responds error code", code);
             callback(code, msg);
             sock.end();
           }
         }
       }
 
-      var msg;
-
+      var msg = '';
       function on_line(line) {
-        log('R: ' + line);
-
         msg += (line + CRLF);
 
         if (line[3] === ' ') {
           // 250-information dash is not complete.
           // 250 OK. space is complete.
+          log.debug('message from socket: ' + msg);
           response(parseInt(line), msg);
           msg = '';
         }
