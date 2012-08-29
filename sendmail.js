@@ -154,7 +154,7 @@ var exports = module.exports = function(options) {
             case 235: // verify ok
             case 250: // operation OK
             case 251: // foward
-            if (step == queue.length) {
+            if (step == queue.length-1) {
               logger.info('OK:', code, msg);
               callback(null, msg);
             }
