@@ -114,7 +114,7 @@ var exports = module.exports = function(options) {
         });
 
         sock.on('error', function(err) {
-            log.error('fail to connect ' + domain);
+            logger.error('fail to connect ' + domain);
             callback(err);
         });
 
