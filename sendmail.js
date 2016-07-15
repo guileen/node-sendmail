@@ -274,7 +274,7 @@ var exports = module.exports = function(options) {
       data += CRLF;
     }
     if (mail.cc) {
-      data += 'Cc: ' + Array.isArray(mail.cc) ? mail.cc.join(',') : mail.cc;
+      data += 'Cc: ' + (Array.isArray(mail.cc) ? mail.cc.join(',') : mail.cc);
       data += CRLF;
     }
 
