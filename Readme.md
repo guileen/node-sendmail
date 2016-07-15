@@ -6,10 +6,26 @@ Send mail without SMTP server
 
     npm install sendmail
 
+### Options
+
+```
+var sendmail = require('sendmail')({
+  logger: {
+    debug: console.log,
+    info: console.info,
+    warn: console.warn,
+    error: console.error
+  }
+})
+```
+
+* `logger` customized logger.
+* `silent`  silent mode
+
 ### Usage
 
 ```javascript
-sendmail = require('sendmail')();
+var sendmail = require('sendmail')();
 
 sendmail({
     from: 'no-reply@yourdomain.com',

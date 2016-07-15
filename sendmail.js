@@ -2,13 +2,20 @@ var tcp = require('net'),
     dns = require('dns'),
     CRLF = '\r\n';
 
+function dummy(){}
 var exports = module.exports = function(options) {
-  var logger = options && options.logger || {
+  options = options || {}
+  var logger = options.logger || (options.silent && {
+    debug: dummy,
+    info: dummy,
+    warn: dummy,
+    error: dummy
+  } || {
     debug: console.log,
     info: console.info,
     warn: console.warn,
     error: console.error
-  }
+  })
 
   /*
    *   邮件服务返回代码含义
@@ -177,7 +184,7 @@ var exports = module.exports = function(options) {
             default:
             if (code >= 400) {
               logger.warn('SMTP responds error code', code);
-              callback(code, msg);
+              callback(new Error('SMTP code:' + code + ' msg:' + msg));
               sock.end();
             }
           }
@@ -288,6 +295,26 @@ var exports = module.exports = function(options) {
 
     for (var domain in groups) {
       sendToSMTP(domain, srcHost, from, groups[domain], data, callback);
+    }
+    var domainsCount = Object.keys(groups).length
+    var doneCount
+    var errs = []
+    function domainDone(domain) {
+      return function(err) {
+        if (err) {
+          errs.push(err)
+        }
+        if(doneCount == domainsCount) {
+          if (errs.length == 0) {
+            err = null
+          } else if(errs.length == 1) {
+            err = errs[0]
+          } else {
+            err = new Error(errs.map(function(e) {return e.message}).join('\n'))
+          }
+          callback(message && new Error(message) || null)
+        }
+      }
     }
 
   }
