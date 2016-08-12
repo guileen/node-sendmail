@@ -1,6 +1,6 @@
-var tcp = require('net'),
-    dns = require('dns'),
-    CRLF = '\r\n';
+var tcp = require('net');
+var dns = require('dns');
+var CRLF = '\r\n';
 
 function dummy(){}
 var exports = module.exports = function(options) {
@@ -16,7 +16,7 @@ var exports = module.exports = function(options) {
     warn: console.warn,
     error: console.error
   })
-  
+
   /*
    *   邮件服务返回代码含义 Mail service return code Meaning
    *   500   格式错误，命令不可识别（此错误也包括命令行过长）format error, command unrecognized (This error also includes command line too long)
@@ -250,7 +250,7 @@ var exports = module.exports = function(options) {
    *
    */
   function sendmail(mail, callback) {
-    var recipients = [], groups, srcHost, data, lheader;
+    var recipients = [], groups, srcHost;
     if (mail.to) {
       recipients = recipients.concat(getAddresses(mail.to));
     }
@@ -265,60 +265,41 @@ var exports = module.exports = function(options) {
 
     groups = group_recipients(recipients);
 
-    from = getAddress(mail.from);
+    var from = getAddress(mail.from);
     srcHost = getHost(from);
-
-    data = 'From: ' + mail.from + CRLF;
-    if (mail.to) {
-      data += 'To: ' + (Array.isArray(mail.to) ? mail.to.join(',') : mail.to);
-      data += CRLF;
-    }
-    if (mail.cc) {
-      data += 'Cc: ' + Array.isArray(mail.cc) ? mail.cc.join(',') : mail.cc;
-      data += CRLF;
-    }
-
-    data += 'Subject: ' + mail.subject + CRLF;
-    data += 'MIME-Version: ' + (mail.version || '1.0') + CRLF;
-    data += 'Message-ID: <' + (mail.id || (new Date().getTime() + srcHost)) + '>' + CRLF;
-    data += 'Content-Type: ' + (mail.type || 'text/plain');
-    data += '; charset=\"' + (mail.charset || (mail.charset = 'utf-8')) + '\"' + CRLF;
-    data += 'Content-Transfer-Encoding: ' + (mail.encoding || (mail.encoding = 'base64')) + CRLF;
-    for (var name in mail.headers) {
-      data += name + ': ' + mail.headers[name] + CRLF;
-    }
-
-    data += CRLF;
-
-    content = mail.content.replace(/\r\n/g, '\n').replace(/\n/g, '\r\n');
-    data += new Buffer(content).toString('base64');
-
-    for (var domain in groups) {
-      sendToSMTP(domain, srcHost, from, groups[domain], data, callback);
-    }
-    var domainsCount = Object.keys(groups).length
-    var doneCount
-    var errs = []
-    function domainDone(domain) {
-      return function(err) {
-        if (err) {
-          errs.push(err)
-        }
-        if(doneCount == domainsCount) {
-          if (errs.length == 0) {
-            err = null
-          } else if(errs.length == 1) {
-            err = errs[0]
-          } else {
-            err = new Error(errs.map(function(e) {return e.message}).join('\n'))
-          }
-          callback(message && new Error(message) || null)
-        }
+    var mailcomposer = require('mailcomposer')
+    var mailMe = mailcomposer(mail)
+    mailMe.build( function(err, message){
+      if (err) {
+        logger.error('Error on creating message : ', err);
+        callback(err, null);
+        return;
       }
-    }
-
+      for (var domain in groups) {
+        sendToSMTP(domain, srcHost, from, groups[domain], message, callback);
+      }
+    })   
+    // COMMENTED OUT BY GP BECAUSE I SAW NO USE FOR IT
+    // var domainsCount = Object.keys(groups).length
+    // var doneCount
+    // var errs = []
+    // function domainDone(domain) {
+    //   return function(err) {
+    //     if (err) {
+    //       errs.push(err)
+    //     }
+    //     if(doneCount == domainsCount) {
+    //       if (errs.length == 0) {
+    //         err = null
+    //       } else if(errs.length == 1) {
+    //         err = errs[0]
+    //       } else {
+    //         err = new Error(errs.map(function(e) {return e.message}).join('\n'))
+    //       }
+    //       callback(message && new Error(message) || null)
+    //     }
+    //   }
+    // }
   }
-
   return sendmail;
-
 }

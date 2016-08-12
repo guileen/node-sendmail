@@ -2,7 +2,7 @@
   "author": "Gui Lin <guileen AT gmail DOT com>",
   "name": "sendmail",
   "description": "Sendmail without setting up SMTP server",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/guileen/node-sendmail.git"
@@ -11,7 +11,15 @@
   "engines": {
     "node": ">=0.6.0"
   },
-  "dependencies": {},
-  "devDependencies": {},
-  "optionalDependencies": {}
+  "dependencies": {
+    "mailcomposer": "^3.10.0"
+  },
+  "devDependencies": {
+    "ical-toolkit": "^1.0.9"
+  },
+  "optionalDependencies": {},
+  "contributors": [
+    "Gui Lin <guileen AT gmail DOT com>",
+    "Green Pioneer <info@greenpioneersolutions.com>"
+  ],
 }
