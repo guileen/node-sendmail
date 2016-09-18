@@ -14,7 +14,7 @@ Send mail without SMTP server
 
 ### Install
 
-    npm install sendmail
+    npm install sendmail --save
 
 ### Options
 
@@ -245,3 +245,13 @@ var mailOptions = {
     }]
 }
 ```
+
+
+### Questions, Comments & Concerns
+
+Please reach out to [Green Pioneer](https://github.com/greenpioneer). [Guileen](https://github.com/guileen) is the original creator.
+
+### Roadmap
+
+* Add Testing
+* Please submit what you think should be in the plan
