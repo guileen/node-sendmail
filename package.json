@@ -21,5 +21,22 @@
   "contributors": [
     "Gui Lin <guileen@gmail.com>",
     "Green Pioneer <info@greenpioneersolutions.com>"
-  ]
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "MIT",
+  "keywords": [
+    "email sender",
+    "send mail",
+    "sendmail",
+    "node sendmail",
+    "no smtp",
+    "without server",
+    "without smtp server"
+  ],
+  "bugs": {
+    "url": "https://github.com/guileen/node-sendmail/issues"
+  },
+  "homepage": "https://github.com/guileen/node-sendmail"
 }
