@@ -1,8 +1,8 @@
 {
-  "author": "Gui Lin <guileen AT gmail DOT com>",
+  "author": "Gui Lin <guileen@gmail.com>",
   "name": "sendmail",
   "description": "Sendmail without setting up SMTP server",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/guileen/node-sendmail.git"
@@ -19,7 +19,7 @@
   },
   "optionalDependencies": {},
   "contributors": [
-    "Gui Lin <guileen AT gmail DOT com>",
+    "Gui Lin <guileen@gmail.com>",
     "Green Pioneer <info@greenpioneersolutions.com>"
-  ],
+  ]
 }
