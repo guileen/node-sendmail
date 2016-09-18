@@ -1,3 +1,13 @@
+[![npm][npm-image]][npm-url]
+[![downloads][downloads-image]][downloads-url]
+[![npm-issues][npm-issues-image]][npm-issues-url]
+
+[npm-image]: https://img.shields.io/npm/v/sendmail.svg?style=flat
+[npm-url]: https://npmjs.org/package/sendmail
+[downloads-image]: https://img.shields.io/npm/dm/sendmail.svg?style=flat
+[downloads-url]: https://npmjs.org/package/sendmail
+[npm-issues-image]: https://img.shields.io/github/issues/guileen/node-sendmail.svg
+[npm-issues-url]: https://github.com/guileen/node-sendmail/issues
 # node-sendmail
 
 Send mail without SMTP server
