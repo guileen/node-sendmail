@@ -12,6 +12,7 @@
     "node": ">=0.6.0"
   },
   "dependencies": {
+    "dkim-signer": "^0.2.2",
     "mailcomposer": "^3.10.0"
   },
   "devDependencies": {
