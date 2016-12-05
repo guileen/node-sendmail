@@ -1,5 +1,6 @@
 var tcp = require('net');
 var dns = require('dns');
+var DKIMSign = require('dkim-signer').DKIMSign;
 var CRLF = '\r\n';
 
 function dummy(){}
@@ -16,6 +17,8 @@ var exports = module.exports = function(options) {
     warn: console.warn,
     error: console.error
   })
+  var dkimPrivateKey = (options.dkim || {}).privateKey
+  var dkimKeySelector = (options.dkim || {}).keySelector || 'dkim'
 
   /*
    *   邮件服务返回代码含义 Mail service return code Meaning
@@ -275,10 +278,18 @@ var exports = module.exports = function(options) {
         callback(err, null);
         return;
       }
+      if (dkimPrivateKey) {
+        var signature = DKIMSign(message, {
+            privateKey: dkimPrivateKey,
+            keySelector: dkimKeySelector,
+            domainName: srcHost
+        });
+        message = signature + '\r\n' + message;
+      }
       for (var domain in groups) {
         sendToSMTP(domain, srcHost, from, groups[domain], message, callback);
       }
-    })   
+    })
     // COMMENTED OUT BY GP BECAUSE I SAW NO USE FOR IT
     // var domainsCount = Object.keys(groups).length
     // var doneCount
