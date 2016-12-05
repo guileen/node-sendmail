@@ -19,6 +19,7 @@ var exports = module.exports = function(options) {
   })
   var dkimPrivateKey = (options.dkim || {}).privateKey
   var dkimKeySelector = (options.dkim || {}).keySelector || 'dkim'
+  var devPort = options.devPort || -1;
 
   /*
    *   邮件服务返回代码含义 Mail service return code Meaning
@@ -66,37 +67,51 @@ var exports = module.exports = function(options) {
    * connect to domain by Mx record
    */
   function connectMx(domain, callback) {
-    dns.resolveMx(domain, function(err, data) {
-        if (err)
-          return callback(err);
+      if (devPort === -1) { // not in development mode -> search the MX
+        dns.resolveMx(domain, function(err, data) {
+            if (err)
+              return callback(err);
 
-        data.sort(function(a, b) {return a.priority < b. priority});
-        logger.debug('mx resolved: ', data);
+            data.sort(function(a, b) {return a.priority < b. priority});
+            logger.debug('mx resolved: ', data);
 
-        if (!data || data.length == 0)
-          return callback(new Error('can not resolve Mx of <' + domain + '>'));
+            if (!data || data.length == 0)
+              return callback(new Error('can not resolve Mx of <' + domain + '>'));
 
-        function tryConnect(i) {
+            function tryConnect(i) {
 
-          if (i >= data.length) return callback(new Error('can not connect to any SMTP server'));
+              if (i >= data.length) return callback(new Error('can not connect to any SMTP server'));
 
-          var sock = tcp.createConnection(25, data[i].exchange);
+              var sock = tcp.createConnection(25, data[i].exchange);
+
+              sock.on('error', function(err) {
+                  logger.error('Error on connectMx for: ', data[i], err);
+                  tryConnect(++i);
+              });
+
+              sock.on('connect', function() {
+                  logger.debug("MX connection created: ", data[i].exchange);
+                  sock.removeAllListeners('error');
+                  callback(null, sock);
+              });
+
+            };
+
+            tryConnect(0);
+        });
+      } else { // development mode -> connect to the specified devPort on localhost
+          var sock = tcp.createConnection(devPort);
 
           sock.on('error', function(err) {
-              logger.error('Error on connectMx for: ', data[i], err);
-              tryConnect(++i);
+              callback(new Error('Error on connectMx (development) for \"localhost:' + devPort + '\": '+ err));
           });
 
           sock.on('connect', function() {
-              logger.debug("MX connection created: ", data[i].exchange);
+              logger.debug("MX (development) connection created: localhost:"+devPort);
               sock.removeAllListeners('error');
               callback(null, sock);
           });
-
-        };
-
-        tryConnect(0);
-    });
+      }
   }
 
   function sendToSMTP(domain, srcHost, from, recipients, body, cb) {
