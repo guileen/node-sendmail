@@ -1,10 +1,10 @@
-var tcp = require('net');
-var dns = require('dns');
-var DKIMSign = require('dkim-signer').DKIMSign;
-var CRLF = '\r\n';
+var tcp = require('net')
+var dns = require('dns')
+var DKIMSign = require('dkim-signer').DKIMSign
+var CRLF = '\r\n'
 
-function dummy(){}
-var exports = module.exports = function(options) {
+function dummy () {}
+module.exports = function (options) {
   options = options || {}
   var logger = options.logger || (options.silent && {
     debug: dummy,
@@ -19,7 +19,7 @@ var exports = module.exports = function(options) {
   })
   var dkimPrivateKey = (options.dkim || {}).privateKey
   var dkimKeySelector = (options.dkim || {}).keySelector || 'dkim'
-  var devPort = options.devPort || -1;
+  var devPort = options.devPort || -1
 
   /*
    *   邮件服务返回代码含义 Mail service return code Meaning
@@ -49,101 +49,109 @@ var exports = module.exports = function(options) {
    *   334   等待用户输入验证信息 waits for the user to enter authentication information
    */
 
-  function getHost(email) {
-    var m = /[^@]+@([\w\d\-\.]+)/.exec(email);
-    return m && m[1];
+  function getHost (email) {
+    var m = /[^@]+@([\w\d\-\.]+)/.exec(email)
+    return m && m[1]
   }
 
-  function group_recipients(recipients) {
-    var groups = {}, email, host, i = 0;
+  function groupRecipients (recipients) {
+    var groups = {}
+    var host
+    var i = 0
     for (; i < recipients.length; i++) {
       host = getHost(recipients[i]);
-      (groups[host] || (groups[host] = [])).push(recipients[i]);
+      (groups[host] || (groups[host] = [])).push(recipients[i])
     }
-    return groups;
+    return groups
   }
 
   /**
    * connect to domain by Mx record
    */
-  function connectMx(domain, callback) {
-      if (devPort === -1) { // not in development mode -> search the MX
-        dns.resolveMx(domain, function(err, data) {
-            if (err)
-              return callback(err);
+  function connectMx (domain, callback) {
+    if (devPort === -1) { // not in development mode -> search the MX
+      dns.resolveMx(domain, function (err, data) {
+        if (err) {
+          return callback(err)
+        }
 
-            data.sort(function(a, b) {return a.priority < b. priority});
-            logger.debug('mx resolved: ', data);
+        data.sort(function (a, b) { return a.priority < b.priority })
+        logger.debug('mx resolved: ', data)
 
-            if (!data || data.length == 0)
-              return callback(new Error('can not resolve Mx of <' + domain + '>'));
+        if (!data || data.length === 0) {
+          return callback(new Error('can not resolve Mx of <' + domain + '>'))
+        }
 
-            function tryConnect(i) {
+        function tryConnect (i) {
+          if (i >= data.length) return callback(new Error('can not connect to any SMTP server'))
 
-              if (i >= data.length) return callback(new Error('can not connect to any SMTP server'));
+          var sock = tcp.createConnection(25, data[i].exchange)
 
-              var sock = tcp.createConnection(25, data[i].exchange);
+          sock.on('error', function (err) {
+            logger.error('Error on connectMx for: ', data[i], err)
+            tryConnect(++i)
+          })
 
-              sock.on('error', function(err) {
-                  logger.error('Error on connectMx for: ', data[i], err);
-                  tryConnect(++i);
-              });
+          sock.on('connect', function () {
+            logger.debug('MX connection created: ', data[i].exchange)
+            sock.removeAllListeners('error')
+            callback(null, sock)
+          })
+        };
 
-              sock.on('connect', function() {
-                  logger.debug("MX connection created: ", data[i].exchange);
-                  sock.removeAllListeners('error');
-                  callback(null, sock);
-              });
+        tryConnect(0)
+      })
+    } else { // development mode -> connect to the specified devPort on localhost
+      var sock = tcp.createConnection(devPort)
 
-            };
+      sock.on('error', function (err) {
+        callback(new Error('Error on connectMx (development) for "localhost:' + devPort + '": ' + err))
+      })
 
-            tryConnect(0);
-        });
-      } else { // development mode -> connect to the specified devPort on localhost
-          var sock = tcp.createConnection(devPort);
-
-          sock.on('error', function(err) {
-              callback(new Error('Error on connectMx (development) for \"localhost:' + devPort + '\": '+ err));
-          });
-
-          sock.on('connect', function() {
-              logger.debug("MX (development) connection created: localhost:"+devPort);
-              sock.removeAllListeners('error');
-              callback(null, sock);
-          });
-      }
+      sock.on('connect', function () {
+        logger.debug('MX (development) connection created: localhost:' + devPort)
+        sock.removeAllListeners('error')
+        callback(null, sock)
+      })
+    }
   }
 
-  function sendToSMTP(domain, srcHost, from, recipients, body, cb) {
-    var callback=(typeof cb=='function') ? cb : function(){};
-    connectMx(domain, function(err, sock) {
-        if(err){
-          logger.error('error on connectMx', err.stack);
-          return callback(err);
+  function sendToSMTP (domain, srcHost, from, recipients, body, cb) {
+    var callback = (typeof cb === 'function') ? cb : function () {}
+    connectMx(domain, function (err, sock) {
+      if (err) {
+        logger.error('error on connectMx', err.stack)
+        return callback(err)
+      }
+
+      function w (s) {
+        logger.debug('send ' + domain + '>' + s)
+        sock.write(s + CRLF)
+      }
+
+      sock.setEncoding('utf8')
+
+      sock.on('data', function (chunk) {
+        data += chunk
+        parts = data.split(CRLF)
+        for (var i = 0, len = parts.length - 1; i < len; i++) {
+          onLine(parts[i])
         }
+        data = parts[parts.length - 1]
+      })
 
-        function w(s) {
-          logger.debug('send ' + domain + '>' + s);
-          sock.write(s + CRLF);
-        }
+      sock.on('error', function (err) {
+        logger.error('fail to connect ' + domain)
+        callback(err)
+      })
 
-        sock.setEncoding('utf8');
-
-        sock.on('data', function(chunk) {
-            data += chunk;
-            parts = data.split(CRLF);
-            for (var i = 0, len = parts.length - 1; i < len; i++) {
-              on_line(parts[i]);
-            }
-            data = parts[parts.length - 1];
-        });
-
-        sock.on('error', function(err) {
-            logger.error('fail to connect ' + domain);
-            callback(err);
-        });
-
-        var data = '', step = 0, loginStep = 0, queue = [], login = [], parts, cmd;
+      var data = ''
+      var step = 0
+      var loginStep = 0
+      var queue = []
+      var login = []
+      var parts
+      var cmd
 
         /*
          if(mail.user && mail.pass){
@@ -153,91 +161,92 @@ var exports = module.exports = function(options) {
          }
          */
 
-        queue.push('MAIL FROM:<' + from + '>');
-        for (var i = 0; i < recipients.length; i++) {
-          queue.push('RCPT TO:<' + recipients[i] + '>');
-        }
-        queue.push('DATA');
-        queue.push('QUIT');
-        queue.push('');
+      queue.push('MAIL FROM:<' + from + '>')
+      for (var i = 0; i < recipients.length; i++) {
+        queue.push('RCPT TO:<' + recipients[i] + '>')
+      }
+      queue.push('DATA')
+      queue.push('QUIT')
+      queue.push('')
 
-        function response(code, msg) {
-          switch (code) {
-            case 220:
+      function response (code, msg) {
+        switch (code) {
+          case 220:
             //*   220   on server ready
             //*   220   服务就绪
             if (/\besmtp\b/i.test(msg)) {
               // TODO:  determin AUTH type; auth login, auth crm-md5, auth plain
-              cmd = 'EHLO';
+              cmd = 'EHLO'
             } else {
-              cmd = 'HELO';
+              cmd = 'HELO'
             }
-            w(cmd + ' ' + srcHost);
-            break;
+            w(cmd + ' ' + srcHost)
+            break
 
-            case 221: // bye
-            case 235: // verify ok
-            case 250: // operation OK
-            case 251: // foward
-            if (step == queue.length-1) {
-              logger.info('OK:', code, msg);
-              callback(null, msg);
+          case 221: // bye
+          case 235: // verify ok
+          case 250: // operation OK
+          case 251: // foward
+            if (step === queue.length - 1) {
+              logger.info('OK:', code, msg)
+              callback(null, msg)
             }
-            w(queue[step]);
-            step++;
-            break;
+            w(queue[step])
+            step++
+            break
 
-            case 354: // start input end with . (dot)
+          case 354: // start input end with . (dot)
             logger.info('sending mail', body)
-            w(body);
-            w('');
-            w('.');
-            break;
+            w(body)
+            w('')
+            w('.')
+            break
 
-            case 334: // input login
-            w(login[loginStep]);
-            loginStep++;
-            break;
+          case 334: // input login
+            w(login[loginStep])
+            loginStep++
+            break
 
-            default:
+          default:
             if (code >= 400) {
-              logger.warn('SMTP responds error code', code);
-              callback(new Error('SMTP code:' + code + ' msg:' + msg));
-              sock.end();
+              logger.warn('SMTP responds error code', code)
+              callback(new Error('SMTP code:' + code + ' msg:' + msg))
+              sock.end()
             }
-          }
         }
+      }
 
-        var msg = '';
+      var msg = ''
 
-        function on_line(line) {
-          logger.debug('recv ' + domain + '>' + line);
+      function onLine (line) {
+        logger.debug('recv ' + domain + '>' + line)
 
-          msg += (line + CRLF);
+        msg += (line + CRLF)
 
-          if (line[3] === ' ') {
+        if (line[3] === ' ') {
             // 250-information dash is not complete.
             // 250 OK. space is complete.
-            response(parseInt(line), msg);
-            msg = '';
-          }
+          response(parseInt(line), msg)
+          msg = ''
         }
-    });
+      }
+    })
   }
 
-  function getAddress(address){
-    return address.replace(/^.+</,'').replace(/>\s*$/,'').trim();
+  function getAddress (address) {
+    return address.replace(/^.+</, '').replace(/>\s*$/, '').trim()
   }
 
-  function getAddresses(addresses) {
-    var i, m, address, results = [];
+  function getAddresses (addresses) {
+    var i
+    var results = []
     if (!Array.isArray(addresses)) {
-      addresses = addresses.split(',');
+      addresses = addresses.split(',')
     }
-    for(i=0;i<addresses.length;i++){
-      results.push(getAddress(addresses[i]));
+    for (i = 0; i < addresses.length; i++) {
+      results.push(getAddress(addresses[i]))
     }
-    return results;
+    return results
   }
 
   /**
@@ -267,42 +276,44 @@ var exports = module.exports = function(options) {
    * @param callback function(err, domain).
    *
    */
-  function sendmail(mail, callback) {
-    var recipients = [], groups, srcHost;
+  function sendmail (mail, callback) {
+    var recipients = []
+    var groups
+    var srcHost
     if (mail.to) {
-      recipients = recipients.concat(getAddresses(mail.to));
+      recipients = recipients.concat(getAddresses(mail.to))
     }
 
     if (mail.cc) {
-      recipients = recipients.concat(getAddresses(mail.cc));
+      recipients = recipients.concat(getAddresses(mail.cc))
     }
 
     if (mail.bcc) {
-      recipients = recipients.concat(getAddresses(mail.bcc));
+      recipients = recipients.concat(getAddresses(mail.bcc))
     }
 
-    groups = group_recipients(recipients);
+    groups = groupRecipients(recipients)
 
-    var from = getAddress(mail.from);
-    srcHost = getHost(from);
+    var from = getAddress(mail.from)
+    srcHost = getHost(from)
     var mailcomposer = require('mailcomposer')
     var mailMe = mailcomposer(mail)
-    mailMe.build( function(err, message){
+    mailMe.build(function (err, message) {
       if (err) {
-        logger.error('Error on creating message : ', err);
-        callback(err, null);
-        return;
+        logger.error('Error on creating message : ', err)
+        callback(err, null)
+        return
       }
       if (dkimPrivateKey) {
         var signature = DKIMSign(message, {
-            privateKey: dkimPrivateKey,
-            keySelector: dkimKeySelector,
-            domainName: srcHost
-        });
-        message = signature + '\r\n' + message;
+          privateKey: dkimPrivateKey,
+          keySelector: dkimKeySelector,
+          domainName: srcHost
+        })
+        message = signature + '\r\n' + message
       }
       for (var domain in groups) {
-        sendToSMTP(domain, srcHost, from, groups[domain], message, callback);
+        sendToSMTP(domain, srcHost, from, groups[domain], message, callback)
       }
     })
     // COMMENTED OUT BY GP BECAUSE I SAW NO USE FOR IT
@@ -327,5 +338,5 @@ var exports = module.exports = function(options) {
     //   }
     // }
   }
-  return sendmail;
+  return sendmail
 }

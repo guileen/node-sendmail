@@ -2,7 +2,7 @@
   "author": "Gui Lin <guileen@gmail.com>",
   "name": "sendmail",
   "description": "Sendmail without setting up SMTP server",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/guileen/node-sendmail.git"
@@ -13,18 +13,20 @@
   },
   "dependencies": {
     "dkim-signer": "^0.2.2",
-    "mailcomposer": "^3.10.0"
+    "mailcomposer": "^3.12.0"
   },
   "devDependencies": {
-    "ical-toolkit": "^1.0.9"
+    "ical-toolkit": "^1.0.9",
+    "standard": "latest"
   },
-  "optionalDependencies": {},
   "contributors": [
     "Gui Lin <guileen@gmail.com>",
     "Green Pioneer <info@greenpioneersolutions.com>"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "npm run lint",
+    "lint": "node_modules/.bin/standard",
+    "lint:fix": "node_modules/.bin/standard --fix"
   },
   "license": "MIT",
   "keywords": [
@@ -34,7 +36,9 @@
     "node sendmail",
     "no smtp",
     "without server",
-    "without smtp server"
+    "without smtp server",
+    "dev mode",
+    "dkim sign mail"
   ],
   "bugs": {
     "url": "https://github.com/guileen/node-sendmail/issues"
