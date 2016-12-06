@@ -37,8 +37,6 @@ var sendmail = require('sendmail')({
   devPort: 1025 // Default: False
 })
 ```
-* `logger` customized logger.
-* `silent`  silent mode
 
 ### Usage
 
