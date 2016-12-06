@@ -58,11 +58,11 @@ sendmail({
 ### Examples
 
 Please checkout our great examples
-- **[attachmentFile](https://github.com/guileen/node-sendmail/blob/master/examples/attachmentFile)**
-- **[developmentMode.js](https://github.com/guileen/node-sendmail/blob/master/examples/developmentMode)**
-- **[dkim.js](https://github.com/guileen/node-sendmail/blob/master/examples/dkim)**
-- **[meetingRequest.js](https://github.com/guileen/node-sendmail/blob/master/examples/meetingRequest)**
-- **[simple.js](https://github.com/guileen/node-sendmail/blob/master/examples/simple)**
+- **[attachmentFile.js](https://github.com/guileen/node-sendmail/blob/master/examples/attachmentFile.js)**
+- **[developmentMode.js](https://github.com/guileen/node-sendmail/blob/master/examples/developmentMode.js)**
+- **[dkim.js](https://github.com/guileen/node-sendmail/blob/master/examples/dkim.js)**
+- **[meetingRequest.js](https://github.com/guileen/node-sendmail/blob/master/examples/meetingRequest.js)**
+- **[simple.js](https://github.com/guileen/node-sendmail/blob/master/examples/simple.js)**
 
 ### Upgrading
 
