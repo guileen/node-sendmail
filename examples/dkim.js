@@ -1,9 +1,9 @@
 var fs = require('fs')
-
+var path = require('path')
 var sendmail = require('../sendmail')({
   silent: true,
   dkim: {
-    privateKey: fs.readFileSync('./dkim-private.pem', 'utf8'),
+    privateKey: fs.readFileSync(path.join(__dirname, './dkim-private.pem'), 'utf8'),
     keySelector: 'mydomainkey'
   }
 })

@@ -2,6 +2,7 @@ var tcp = require('net')
 var dns = require('dns')
 var DKIMSign = require('dkim-signer').DKIMSign
 var CRLF = '\r\n'
+var mailcomposer = require('mailcomposer')
 
 function dummy () {}
 module.exports = function (options) {
@@ -296,7 +297,6 @@ module.exports = function (options) {
 
     var from = getAddress(mail.from)
     srcHost = getHost(from)
-    var mailcomposer = require('mailcomposer')
     var mailMe = mailcomposer(mail)
     mailMe.build(function (err, message) {
       if (err) {
@@ -313,7 +313,9 @@ module.exports = function (options) {
         message = signature + '\r\n' + message
       }
       for (var domain in groups) {
-        sendToSMTP(domain, srcHost, from, groups[domain], message, callback)
+        console.log(message.toString('utf8'), 'message')
+        console.log(domain, srcHost, from, groups[domain], message, callback)
+        // sendToSMTP(domain, srcHost, from, groups[domain], message, callback)
       }
     })
     // COMMENTED OUT BY GP BECAUSE I SAW NO USE FOR IT
@@ -339,4 +341,17 @@ module.exports = function (options) {
     // }
   }
   return sendmail
+}
+
+module.exports.check = function () {
+  return true
+}
+module.exports.build = function (mail, callback) {
+  mailcomposer(mail).build(function (err, message) {
+    console.log(arguments, 'ar')
+    if (err) {
+      return callback(err)
+    }
+    return callback(message)
+  })
 }

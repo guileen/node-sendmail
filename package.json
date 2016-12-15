@@ -17,6 +17,8 @@
   },
   "devDependencies": {
     "ical-toolkit": "^1.0.9",
+    "chai": "^3.5.0",
+    "mocha": "^2.5.3",
     "standard": "latest"
   },
   "contributors": [
@@ -24,9 +26,10 @@
     "Green Pioneer <info@greenpioneersolutions.com>"
   ],
   "scripts": {
-    "test": "npm run lint",
+    "test": "npm run mocha ",
     "lint": "node_modules/.bin/standard",
-    "lint:fix": "node_modules/.bin/standard --fix"
+    "lint:fix": "node_modules/.bin/standard --fix",
+    "mocha": "node node_modules/mocha/bin/mocha tests/test.js  "
   },
   "license": "MIT",
   "keywords": [
