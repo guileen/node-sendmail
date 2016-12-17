@@ -9,7 +9,7 @@
   },
   "main": "./sendmail",
   "engines": {
-    "node": ">=0.6.0"
+    "node": ">=6.0.0"
   },
   "dependencies": {
     "dkim-signer": "^0.2.2",

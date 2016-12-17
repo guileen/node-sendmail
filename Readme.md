@@ -22,7 +22,7 @@ Send mail without SMTP server
 ### Options
 
 ```javascript
-var sendmail = require('sendmail')({
+const sendmail = require('sendmail')({
   logger: {
     debug: console.log,
     info: console.info,
@@ -41,7 +41,7 @@ var sendmail = require('sendmail')({
 ### Usage
 
 ```javascript
-var sendmail = require('sendmail')();
+const sendmail = require('sendmail')();
 
 sendmail({
     from: 'no-reply@yourdomain.com',
