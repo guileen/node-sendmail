@@ -20,6 +20,7 @@ module.exports = function (options) {
   const dkimPrivateKey = (options.dkim || {}).privateKey;
   const dkimKeySelector = (options.dkim || {}).keySelector || 'dkim';
   const devPort = options.devPort || -1;
+  const devHost = options.devHost || 'localhost';
 
   /*
    *   邮件服务返回代码含义 Mail service return code Meaning
@@ -101,15 +102,15 @@ module.exports = function (options) {
 
         tryConnect(0)
       })
-    } else { // development mode -> connect to the specified devPort on localhost
-      const sock = createConnection(devPort);
+    } else { // development mode -> connect to the specified devPort on devHost
+      const sock = createConnection(devPort, devHost);
 
       sock.on('error', function (err) {
-        callback(new Error('Error on connectMx (development) for "localhost:' + devPort + '": ' + err))
+        callback(new Error('Error on connectMx (development) for "'+ devHost +':' + devPort + '": ' + err))
       });
 
       sock.on('connect', function () {
-        logger.debug('MX (development) connection created: localhost:' + devPort);
+        logger.debug('MX (development) connection created: '+ devHost +':' + devPort);
         sock.removeAllListeners('error');
         callback(null, sock)
       })
