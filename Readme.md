@@ -17,7 +17,11 @@ Send mail without SMTP server
 
 ### Install
 
-    npm install sendmail --save
+``` bash
+npm install sendmail --save
+# or
+yarn add sendmail
+```
 
 ### Options
 
@@ -35,6 +39,7 @@ const sendmail = require('sendmail')({
     keySelector: 'mydomainkey'
   },
   devPort: 1025 // Default: False
+  devHost: 'localhost' // Default: localhost
 })
 ```
 
@@ -61,6 +66,7 @@ Please checkout our great examples
 - **[dkim.js](https://github.com/guileen/node-sendmail/blob/master/examples/dkim.js)**
 - **[meetingRequest.js](https://github.com/guileen/node-sendmail/blob/master/examples/meetingRequest.js)**
 - **[simple.js](https://github.com/guileen/node-sendmail/blob/master/examples/simple.js)**
+- **[devHostPort.js](https://github.com/guileen/node-sendmail/blob/master/examples/devHostPort.js)**
 
 ### Upgrading
 
@@ -122,6 +128,11 @@ A property describing a port for a local SMTP server (see [MailHog](https://gith
 ##### 1.1.0 Add DKIM signing
 Added a `dkim` object to options that can have two properties: `privateKey` and `keySelector`. These options correspond to the options for [`dkim-signer`](https://github.com/andris9/dkim-signer). Added an example for these options. Special thanks goes out to download13 for [PR 23](https://github.com/guileen/node-sendmail/pull/23)
 
+##### 1.1.1 Readme fix 
+simple link and text updates
+
+##### 1.2.0 Added Support for devHost & devPort
+Add option to override "localhost" when sending all SMTP traffic to a dummy server.
 
 ### Roadmap
 
