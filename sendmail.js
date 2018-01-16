@@ -21,6 +21,7 @@ module.exports = function (options) {
   const dkimKeySelector = (options.dkim || {}).keySelector || 'dkim';
   const devPort = options.devPort || -1;
   const devHost = options.devHost || 'localhost';
+  const smtpPort = options.smtpPort || 25
 
   /*
    *   邮件服务返回代码含义 Mail service return code Meaning
@@ -86,7 +87,7 @@ module.exports = function (options) {
         function tryConnect (i) {
           if (i >= data.length) return callback(new Error('can not connect to any SMTP server'));
 
-          const sock = createConnection(25, data[i].exchange);
+          const sock = createConnection(smtpPort, data[i].exchange);
 
           sock.on('error', function (err) {
             logger.error('Error on connectMx for: ', data[i], err);
