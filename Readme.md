@@ -40,6 +40,7 @@ const sendmail = require('sendmail')({
   },
   devPort: 1025 // Default: False
   devHost: 'localhost' // Default: localhost
+  smtpPort: 2525 // Default: 25
 })
 ```
 
@@ -71,6 +72,8 @@ Please checkout our great examples
 ### Upgrading
 
 Note if you were on any previous version before `<1.0.0` You will need to start using `html` instead of `content`. Instead of creating emails ourselves anymore we have decided to use `mailcomposer` to compose our emails. Which means we can give you the same great package with the best mail composer package out there. 
+
+In 1.2.0 "Converted to ES2015" which will break node 4.x 
 
 ### Mail Options
 Note we use `mailcomposer` to compose our mail before we send it out so all mail options will be well documented [Here](https://github.com/nodemailer/mailcomposer). But for those who want something particular go ahead and search down below.
@@ -132,9 +135,13 @@ Added a `dkim` object to options that can have two properties: `privateKey` and 
 simple link and text updates
 
 ##### 1.2.0 Added Support for devHost & devPort
-Add option to override "localhost" when sending all SMTP traffic to a dummy server.
+Add option to override "localhost" when sending all SMTP traffic to a dummy server & "Converted to ES2015" 
+
+##### 1.3.0
+Add option to override "smtpPort:25" 
+
 
 ### Roadmap
 
 * Add Testing
-* Please submit what you think should be in the plan
+* Please submit your ideas as PR's
