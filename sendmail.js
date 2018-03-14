@@ -22,7 +22,7 @@ module.exports = function (options) {
   const devPort = options.devPort || -1;
   const devHost = options.devHost || 'localhost';
   const smtpPort = options.smtpPort || 25
-
+  const smtpHost = options.smtpHost || -1
   /*
    *   邮件服务返回代码含义 Mail service return code Meaning
    *   500   格式错误，命令不可识别（此错误也包括命令行过长）format error, command unrecognized (This error also includes command line too long)
@@ -83,7 +83,7 @@ module.exports = function (options) {
         if (!data || data.length === 0) {
           return callback(new Error('can not resolve Mx of <' + domain + '>'))
         }
-
+        if(smtpHost !== -1)data.push({exchange:smtpHost})
         function tryConnect (i) {
           if (i >= data.length) return callback(new Error('can not connect to any SMTP server'));
 

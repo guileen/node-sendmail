@@ -38,9 +38,10 @@ const sendmail = require('sendmail')({
     privateKey: fs.readFileSync('./dkim-private.pem', 'utf8'),
     keySelector: 'mydomainkey'
   },
-  devPort: 1025 // Default: False
-  devHost: 'localhost' // Default: localhost
-  smtpPort: 2525 // Default: 25
+  devPort: 1025, // Default: False
+  devHost: 'localhost', // Default: localhost
+  smtpPort: 2525, // Default: 25
+  smtpHost: 'localhost' // Default: -1 - extra smtp host after resolveMX
 })
 ```
 
@@ -68,6 +69,7 @@ Please checkout our great examples
 - **[meetingRequest.js](https://github.com/guileen/node-sendmail/blob/master/examples/meetingRequest.js)**
 - **[simple.js](https://github.com/guileen/node-sendmail/blob/master/examples/simple.js)**
 - **[devHostPort.js](https://github.com/guileen/node-sendmail/blob/master/examples/devHostPort.js)**
+- **[smtpPort.js](https://github.com/guileen/node-sendmail/blob/master/examples/smtpPort.js)**
 
 ### Upgrading
 
@@ -140,8 +142,16 @@ Add option to override "localhost" when sending all SMTP traffic to a dummy serv
 ##### 1.3.0
 Add option to override "smtpPort:25" 
 
+##### 1.4.0
+Add option to add extra smtp host after resolveMX "smtpHost:-1"
+Added Yarn Lock
 
 ### Roadmap
 
 * Add Testing
+* Add Better Error Handling
+* Add A Retry feature
+* Update how we do options
+* Respond with documented status codes
+* CRLF
 * Please submit your ideas as PR's
