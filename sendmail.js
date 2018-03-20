@@ -262,8 +262,8 @@ module.exports = function (options) {
    *             to
    *             cc
    *             bcc
-   *             replyTo      TODO
-   *             returnTo     TODO
+   *             replyTo
+   *             returnTo
    *             subject
    *             type         default 'text/plain', 'text/html'
    *             charset      default 'utf-8'
@@ -271,7 +271,7 @@ module.exports = function (options) {
    *             id           default timestamp+from
    *             headers      object
    *             content
-   *             attachments  TODO
+   *             attachments
    *               [{
    *                 type
    *                 filename
