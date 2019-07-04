@@ -15,7 +15,7 @@
 
 Send mail without SMTP server
 
-If your interested in helping out this repo please check out the roadmap below to see if anything interests you
+If you're interested in helping out this repo, please check out the roadmap below to see if anything interests you
 
 ## Roadmap
 
