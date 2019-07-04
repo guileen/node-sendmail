@@ -172,6 +172,10 @@ Attachments can be used as embedded images in the HTML body. To use this feature
 * Update Readme  - Special thanks goes out to zzzgit for [PR 58](https://github.com/guileen/node-sendmail/pull/58)
 * sort mx records by priority (lowest first)  - Special thanks goes out to seasick for [PR 57](https://github.com/guileen/node-sendmail/pull/57)
 
+### 1.6.0
+
+* Updated parsing to use auto parse
+
 ## Questions, Comments & Concerns
 
 Please reach out to [Green Pioneer](https://github.com/greenpioneer). If I dont respond the first time please feel free to reach out again to get help( Also try using @greenpioneer in issues or prs). [Guileen](https://github.com/guileen) is the original creator.

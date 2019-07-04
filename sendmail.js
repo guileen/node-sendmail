@@ -1,6 +1,7 @@
 const {createConnection} = require('net');
 const {resolveMx} = require('dns');
 const {DKIMSign} = require('dkim-signer');
+const autoParse = require('auto-parse');
 const CRLF = '\r\n';
 
 function dummy () {}
@@ -230,7 +231,8 @@ module.exports = function (options) {
         if (line[3] === ' ') {
             // 250-information dash is not complete.
             // 250 OK. space is complete.
-          response(parseInt(line), msg);
+          let lineNumber = autoParse(line, Number)
+          response(lineNumber, msg);
           msg = '';
         }
       }
