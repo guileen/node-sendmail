@@ -1,6 +1,6 @@
 var sendmail = require('../sendmail')({
-    smtpHost:'localhost',
-    smtpPort: 1025
+  smtpHost: 'localhost',
+  smtpPort: 1025
 })
 
 sendmail({

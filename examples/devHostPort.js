@@ -1,6 +1,6 @@
 var sendmail = require('../sendmail')({
-    devHost:'localhost',
-    devPort: 1025
+  devHost: 'localhost',
+  devPort: 1025
 })
 
 sendmail({

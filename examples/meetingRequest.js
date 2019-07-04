@@ -1,5 +1,5 @@
 var icalToolkit = require('ical-toolkit')
-var sendmail = require('../sendmail')({silent: true})
+var sendmail = require('../sendmail')({ silent: true })
 
 // Create a builder
 var builder = icalToolkit.createIcsFileBuilder()
@@ -142,4 +142,3 @@ sendmail({
   console.log(err && err.stack)
   console.dir(reply)
 })
-
