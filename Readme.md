@@ -136,37 +136,42 @@ Attachments can be used as embedded images in the HTML body. To use this feature
 
 ### 1.0.0 Mail Composer
 
-A better way to compose the emails while still sending them out in the exact same way.
+* A better way to compose the emails while still sending them out in the exact same way.
 
 ### 1.1.0 Support for development SMTP
 
-A property describing a port for a local SMTP server (see [MailHog](https://github.com/mailhog/MailHog)) was added. If the property is omitted, sendmail behaves like it used to. This feature makes it possible to test an application offline and for multiple email addresses without needing to create hundreds of mail accounts. - Special thanks goes out to  gumannp for [PR 21](https://github.com/guileen/node-sendmail/pull/21)
+* A property describing a port for a local SMTP server (see [MailHog](https://github.com/mailhog/MailHog)) was added. If the property is omitted, sendmail behaves like it used to. This feature makes it possible to test an application offline and for multiple email addresses without needing to create hundreds of mail accounts. - Special thanks goes out to  gumannp for [PR 21](https://github.com/guileen/node-sendmail/pull/21)
 
 ### 1.1.0 Add DKIM signing
 
-Added a `dkim` object to options that can have two properties: `privateKey` and `keySelector`. These options correspond to the options for [`dkim-signer`](https://github.com/andris9/dkim-signer). Added an example for these options. Special thanks goes out to download13 for [PR 23](https://github.com/guileen/node-sendmail/pull/23)
+* Added a `dkim` object to options that can have two properties: `privateKey` and `keySelector`. These options correspond to the options for [`dkim-signer`](https://github.com/andris9/dkim-signer). Added an example for these options. Special thanks goes out to download13 for [PR 23](https://github.com/guileen/node-sendmail/pull/23)
 
 ### 1.1.1 Readme fix
 
-simple link and text updates
+* simple link and text updates
 
 ### 1.2.0 Added Support for devHost & devPort
 
-Add option to override "localhost" when sending all SMTP traffic to a dummy server & "Converted to ES2015" 
+* Add option to override "localhost" when sending all SMTP traffic to a dummy server & "Converted to ES2015" 
 
 ### 1.3.0
 
-Add option to override "smtpPort:25" 
+* Add option to override "smtpPort:25" 
 
 ### 1.4.0
 
-Add option to add extra smtp host after resolveMX "smtpHost:-1"
-Added Yarn Lock
+* Add option to add extra smtp host after resolveMX "smtpHost:-1"
+* Added Yarn Lock
 
 ### 1.4.1
 
-Update Readme 
+* Update Readme 
+
+### 1.5.0
+
+* Update Readme  - Special thanks goes out to zzzgit for [PR 58](https://github.com/guileen/node-sendmail/pull/58)
+* sort mx records by priority (lowest first)  - Special thanks goes out to seasick for [PR 57](https://github.com/guileen/node-sendmail/pull/57)
 
 ## Questions, Comments & Concerns
 
-Please reach out to [Green Pioneer](https://github.com/greenpioneer). [Guileen](https://github.com/guileen) is the original creator.
+Please reach out to [Green Pioneer](https://github.com/greenpioneer). If I dont respond the first time please feel free to reach out again to get help( Also try using @greenpioneer in issues or prs). [Guileen](https://github.com/guileen) is the original creator.
