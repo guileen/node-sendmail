@@ -1,6 +1,6 @@
 const { createConnection } = require('net')
 const { resolveMx } = require('dns')
-const { DKIMSign } = require('dkim-signer')
+const { DKIMSign } = require('./lib/dkim')
 const autoParse = require('auto-parse')
 const CRLF = '\r\n'
 
@@ -286,7 +286,7 @@ module.exports = function (options) {
    *
    */
   function sendmail (mail, callback) {
-    const mailcomposer = require('mailcomposer')
+    const mailcomposer = require('./lib/mailcomposer')
     const mailMe = mailcomposer(mail)
     let recipients = []
     let groups
