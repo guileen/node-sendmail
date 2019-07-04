@@ -77,7 +77,7 @@ module.exports = function (options) {
           return callback(err)
         }
 
-        data.sort(function (a, b) { return a.priority < b.priority });
+        data.sort(function (a, b) { return a.priority > b.priority });
         logger.debug('mx resolved: ', data);
 
         if (!data || data.length === 0) {
