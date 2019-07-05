@@ -12,7 +12,6 @@
     "node": ">=6.0.0"
   },
   "dependencies": {
-    "auto-parse": "^1.7.0",
     "dkim-signer": "^0.2.2",
     "mailcomposer": "^3.12.0"
   },
