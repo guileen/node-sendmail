@@ -176,6 +176,10 @@ Attachments can be used as embedded images in the HTML body. To use this feature
 
 * Updated parsing to use auto parse
 
+### 1.6.1
+
+* Rollback of autoparse
+
 ## Questions, Comments & Concerns
 
 Please reach out to [Green Pioneer](https://github.com/greenpioneer). If I dont respond the first time please feel free to reach out again to get help( Also try using @greenpioneer in issues or prs). [Guileen](https://github.com/guileen) is the original creator.
