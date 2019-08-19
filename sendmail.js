@@ -230,7 +230,7 @@ module.exports = function (options) {
         if (line[3] === ' ') {
             // 250-information dash is not complete.
             // 250 OK. space is complete.
-          let lineNumber = parseInt(line);
+          let lineNumber = parseInt(line.substr(0, 3));
           response(lineNumber, msg);
           msg = '';
         }
