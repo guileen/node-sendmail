@@ -166,14 +166,14 @@ module.exports = function (options) {
          }
          */
 
-        queue.push('MAIL FROM:<' + from + '>');
-        const recipients_length = recipients.length;
-        for (let i = 0; i < recipients_length; i++) {
-          queue.push('RCPT TO:<' + recipients[i] + '>')
-        }
-        queue.push('DATA');
-        queue.push('QUIT');
-        queue.push('');
+      queue.push('MAIL FROM:<' + from + '>');
+      const recipients_length = recipients.length;
+      for (let i = 0; i < recipients_length; i++) {
+        queue.push('RCPT TO:<' + recipients[i] + '>')
+      }
+      queue.push('DATA');
+      queue.push('QUIT');
+      queue.push('');
 
       function response (code, msg) {
         switch (code) {
