@@ -1,4 +1,5 @@
 const {createConnection} = require('net');
+const {connect} = require('tls');
 const {resolveMx} = require('dns');
 const {DKIMSign} = require('dkim-signer');
 const CRLF = '\r\n';
@@ -21,7 +22,7 @@ module.exports = function (options) {
   const dkimKeySelector = (options.dkim || {}).keySelector || 'dkim';
   const devPort = options.devPort || -1;
   const devHost = options.devHost || 'localhost';
-  const smtpPort = options.smtpPort || 25
+  const smtpPort = options.smtpPort || 25 
   const smtpHost = options.smtpHost || -1
   /*
    *   邮件服务返回代码含义 Mail service return code Meaning
@@ -88,7 +89,7 @@ module.exports = function (options) {
           if (i >= data.length) return callback(new Error('can not connect to any SMTP server'));
 
           const sock = createConnection(smtpPort, data[i].exchange);
-
+        
           sock.on('error', function (err) {
             logger.error('Error on connectMx for: ', data[i], err);
             tryConnect(++i)
@@ -155,6 +156,7 @@ module.exports = function (options) {
       const login = [];
       let parts;
       let cmd;
+      let upgraded = false;
 
         /*
          if(mail.user && mail.pass){
@@ -164,32 +166,81 @@ module.exports = function (options) {
          }
          */
 
-      queue.push('MAIL FROM:<' + from + '>');
-      const recipients_length = recipients.length;
-      for (let i = 0; i < recipients_length; i++) {
-        queue.push('RCPT TO:<' + recipients[i] + '>')
-      }
-      queue.push('DATA');
-      queue.push('QUIT');
-      queue.push('');
+        queue.push('MAIL FROM:<' + from + '>');
+        const recipients_length = recipients.length;
+        for (let i = 0; i < recipients_length; i++) {
+          queue.push('RCPT TO:<' + recipients[i] + '>')
+        }
+        queue.push('DATA');
+        queue.push('QUIT');
+        queue.push('');
 
       function response (code, msg) {
         switch (code) {
           case 220:
             //*   220   on server ready
             //*   220   服务就绪
-            if (/\besmtp\b/i.test(msg)) {
-              // TODO:  determin AUTH type; auth login, auth crm-md5, auth plain
-              cmd = 'EHLO'
-            } else {
-              cmd = 'HELO'
-            }
-            w(cmd + ' ' + srcHost);
-            break;
+            if(/\bGo ahead\b/i.test(msg) || /\bReady to start TLS\b/i.test(msg)){
+              sock.removeAllListeners('data');
+
+              let original = sock;
+              original.pause();
+
+              let opts = {
+                socket: sock,
+                host: sock._host
+              };
+
+              sock = connect(
+                  opts,
+                  () => {
+                    sock.on('data', function (chunk) {
+                      data += chunk;
+                      parts = data.split(CRLF);
+                      const parts_length = parts.length - 1;
+                      for (let i = 0, len = parts_length; i < len; i++) {
+                        onLine(parts[i])
+                      }
+                      data = parts[parts.length - 1]
+                    });
+      
+                    sock.removeAllListeners('close');
+                    sock.removeAllListeners('end');
+
+                    return;
+                  }
+              );
+
+              sock.on('error', function (err) {
+                logger.error('Error on connectMx for: ', err);
+              });
+
+              original.resume();
+              upgraded = true;
+              w("EHLO " + srcHost);
+              break;
+            } else
+            {
+              if (/\besmtp\b/i.test(msg)) {
+                // TODO:  determin AUTH type; auth login, auth crm-md5, auth plain
+                cmd = 'EHLO'
+              } else {
+                cmd = 'HELO'
+              }
+              w(cmd + ' ' + srcHost);
+              break;
+            } 
 
           case 221: // bye
           case 235: // verify ok
           case 250: // operation OK
+            if(upgraded != true){
+              if(/\bSTARTTLS\b/i.test(msg)){
+                w('STARTTLS');
+              }
+              break;
+            }
+
           case 251: // foward
             if (step === queue.length - 1) {
               logger.info('OK:', code, msg);
