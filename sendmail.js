@@ -180,7 +180,7 @@ module.exports = function (options) {
           case 220:
             //*   220   on server ready
             //*   220   服务就绪
-            if(/\bGo ahead\b/i.test(msg) || /\bReady to start TLS\b/i.test(msg)){
+            if(/\bGo ahead\b/i.test(msg) || /\bTLS\b/i.test(msg)){
               sock.removeAllListeners('data');
 
               let original = sock;
