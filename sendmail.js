@@ -188,7 +188,8 @@ module.exports = function (options) {
 
               let opts = {
                 socket: sock,
-                host: sock._host
+                host: sock._host,
+                rejectUnauthorized: false
               };
 
               sock = connect(
