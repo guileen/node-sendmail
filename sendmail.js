@@ -24,7 +24,7 @@ module.exports = function (options) {
   const devHost = options.devHost || 'localhost';
   const smtpPort = options.smtpPort || 25 
   const smtpHost = options.smtpHost || -1
-  const rejectUnauthorized = options.rejectUnauthorized || true;
+  const rejectUnauthorized = options.rejectUnauthorized;
   
   /*
    *   邮件服务返回代码含义 Mail service return code Meaning
