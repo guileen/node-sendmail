@@ -25,6 +25,7 @@ module.exports = function (options) {
   const smtpPort = options.smtpPort || 25 
   const smtpHost = options.smtpHost || -1
   const rejectUnauthorized = options.rejectUnauthorized;
+  const autoEHLO = options.autoEHLO;
   
   /*
    *   邮件服务返回代码含义 Mail service return code Meaning
@@ -224,10 +225,11 @@ module.exports = function (options) {
               break;
             } else
             {
-              if (/\besmtp\b/i.test(msg)) {
+              if (/\besmtp\b/i.test(msg) || autoEHLO) {
                 // TODO:  determin AUTH type; auth login, auth crm-md5, auth plain
                 cmd = 'EHLO'
               } else {
+                upgraded = true;
                 cmd = 'HELO'
               }
               w(cmd + ' ' + srcHost);
