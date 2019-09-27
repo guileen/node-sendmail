@@ -242,8 +242,10 @@ module.exports = function (options) {
             if(upgraded != true){
               if(/\bSTARTTLS\b/i.test(msg)){
                 w('STARTTLS');
+              } else {
+                upgraded = true;
               }
-              upgraded = true;
+              
               break;
             }
 
