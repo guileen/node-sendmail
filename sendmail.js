@@ -237,6 +237,8 @@ module.exports = function (options) {
             } 
 
           case 221: // bye
+            sock.end();
+            break;
           case 235: // verify ok
           case 250: // operation OK
             if(upgraded != true){
