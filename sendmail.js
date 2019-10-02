@@ -22,8 +22,8 @@ module.exports = function (options) {
   const dkimKeySelector = (options.dkim || {}).keySelector || 'dkim';
   const devPort = options.devPort || -1;
   const devHost = options.devHost || 'localhost';
-  const smtpPort = options.smtpPort || 25 
-  const smtpHost = options.smtpHost || -1
+  const smtpPort = options.smtpPort || 25;
+  const smtpHost = options.smtpHost || -1;
   const rejectUnauthorized = options.rejectUnauthorized;
   const autoEHLO = options.autoEHLO;
   
@@ -68,7 +68,7 @@ module.exports = function (options) {
       host = getHost(recipients[i]);
       (groups[host] || (groups[host] = [])).push(recipients[i])
     }
-    return groups
+    return groups;
   }
 
   /**
@@ -78,16 +78,17 @@ module.exports = function (options) {
     if (devPort === -1) { // not in development mode -> search the MX
       resolveMx(domain, function (err, data) {
         if (err) {
-          return callback(err)
+          return callback(err);
         }
 
         data.sort(function (a, b) { return a.priority > b.priority });
         logger.debug('mx resolved: ', data);
 
         if (!data || data.length === 0) {
-          return callback(new Error('can not resolve Mx of <' + domain + '>'))
+          return callback(new Error('can not resolve Mx of <' + domain + '>'));
         }
-        if(smtpHost !== -1)data.push({exchange:smtpHost})
+        if(smtpHost !== -1) data.push({exchange:smtpHost});
+        
         function tryConnect (i) {
           if (i >= data.length) return callback(new Error('can not connect to any SMTP server'));
 
@@ -101,7 +102,7 @@ module.exports = function (options) {
           sock.on('connect', function () {
             logger.debug('MX connection created: ', data[i].exchange);
             sock.removeAllListeners('error');
-            callback(null, sock)
+            callback(null, sock);
           })
         }
 
@@ -117,7 +118,7 @@ module.exports = function (options) {
       sock.on('connect', function () {
         logger.debug('MX (development) connection created: '+ devHost +':' + devPort);
         sock.removeAllListeners('error');
-        callback(null, sock)
+        callback(null, sock);
       })
     }
   }
@@ -127,12 +128,12 @@ module.exports = function (options) {
     connectMx(domain, function (err, sock) {
       if (err) {
         logger.error('error on connectMx', err.stack);
-        return callback(err)
+        return callback(err);
       }
 
       function w (s) {
         logger.debug('send ' + domain + '>' + s);
-        sock.write(s + CRLF)
+        sock.write(s + CRLF);
       }
 
       sock.setEncoding('utf8');
@@ -142,14 +143,14 @@ module.exports = function (options) {
         parts = data.split(CRLF);
         const parts_length = parts.length - 1;
         for (let i = 0, len = parts_length; i < len; i++) {
-          onLine(parts[i])
+          onLine(parts[i]);
         }
-        data = parts[parts.length - 1]
+        data = parts[parts.length - 1];
       });
 
       sock.on('error', function (err) {
-        logger.error('fail to connect ' + domain)
-        callback(err)
+        logger.error('fail to connect ' + domain);
+        callback(err);
       });
 
       let data = '';
@@ -172,7 +173,7 @@ module.exports = function (options) {
       queue.push('MAIL FROM:<' + from + '>');
       const recipients_length = recipients.length;
       for (let i = 0; i < recipients_length; i++) {
-        queue.push('RCPT TO:<' + recipients[i] + '>')
+        queue.push('RCPT TO:<' + recipients[i] + '>');
       }
       queue.push('DATA');
       queue.push('QUIT');
@@ -227,10 +228,10 @@ module.exports = function (options) {
             {
               if (/\besmtp\b/i.test(msg) || autoEHLO) {
                 // TODO:  determin AUTH type; auth login, auth crm-md5, auth plain
-                cmd = 'EHLO'
+                cmd = 'EHLO';
               } else {
                 upgraded = true;
-                cmd = 'HELO'
+                cmd = 'HELO';
               }
               w(cmd + ' ' + srcHost);
               break;
@@ -256,7 +257,7 @@ module.exports = function (options) {
           case 251: // foward
             if (step === queue.length - 1) {
               logger.info('OK:', code, msg);
-              callback(null, msg)
+              callback(null, msg);
             }
             w(queue[step]);
             step++;
@@ -315,7 +316,7 @@ module.exports = function (options) {
     for (let i = 0; i < addresses_length; i++) {
       results.push(getAddress(addresses[i]));
     }
-    return results
+    return results;
   }
 
   /**
@@ -352,15 +353,15 @@ module.exports = function (options) {
     let groups;
     let srcHost;
     if (mail.to) {
-      recipients = recipients.concat(getAddresses(mail.to))
+      recipients = recipients.concat(getAddresses(mail.to));
     }
 
     if (mail.cc) {
-      recipients = recipients.concat(getAddresses(mail.cc))
+      recipients = recipients.concat(getAddresses(mail.cc));
     }
 
     if (mail.bcc) {
-      recipients = recipients.concat(getAddresses(mail.bcc))
+      recipients = recipients.concat(getAddresses(mail.bcc));
     }
 
     groups = groupRecipients(recipients);
@@ -370,7 +371,7 @@ module.exports = function (options) {
 
     mailMe.build(function (err, message) {
       if (err) {
-        logger.error('Error on creating message : ', err)
+        logger.error('Error on creating message : ', err);
         callback(err, null);
         return
       }
@@ -380,12 +381,12 @@ module.exports = function (options) {
           keySelector: dkimKeySelector,
           domainName: srcHost
         });
-        message = signature + '\r\n' + message
+        message = signature + '\r\n' + message;
       }
       for (let domain in groups) {
-        sendToSMTP(domain, srcHost, from, groups[domain], message, callback)
+        sendToSMTP(domain, srcHost, from, groups[domain], message, callback);
       }
     });
   }
-  return sendmail
+  return sendmail;
 };
