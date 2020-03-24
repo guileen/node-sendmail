@@ -383,9 +383,25 @@ module.exports = function (options) {
         });
         message = signature + '\r\n' + message;
       }
-      for (let domain in groups) {
-        sendToSMTP(domain, srcHost, from, groups[domain], message, callback);
+      
+      const domains = Object.keys(groups);
+      function processDomain() {
+        const domain = domains.shift();
+        if (!domain) {
+          callback();
+          return;
+        }
+
+        sendToSMTP(domain, srcHost, from, groups[domain], message, (err, msg) => {
+          if (err) {
+            callback(err);
+          } else {
+            processDomain();
+          }
+        })
       }
+      
+      processDomain();
     });
   }
   return sendmail;
