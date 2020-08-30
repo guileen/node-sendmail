@@ -1,5 +1,5 @@
 const {createConnection} = require('net');
-const {connect} = require('tls');
+const {connect, createSecureContext} = require('tls');
 const {resolveMx} = require('dns');
 const {DKIMSign} = require('dkim-signer');
 const CRLF = '\r\n';
