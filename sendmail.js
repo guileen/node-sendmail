@@ -185,6 +185,7 @@ module.exports = function (options) {
             //*   220   on server ready
             //*   220   服务就绪
             if(upgraded === "in-progress"){
+              logger.info('UPGRADING TO TLS!!');
               sock.removeAllListeners('data');
 
               let original = sock;
