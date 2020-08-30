@@ -1,5 +1,5 @@
 const {createConnection} = require('net');
-const {connect} = require('tls');
+const {connect, createSecureContext} = require('tls');
 const {resolveMx} = require('dns');
 const {DKIMSign} = require('dkim-signer');
 const CRLF = '\r\n';
@@ -195,6 +195,9 @@ module.exports = function (options) {
                 host: sock._host,
                 rejectUnauthorized,
               };
+              if (options.tls) {
+                  opts.secureContext = createSecureContext({cert: options.tls.cert, key: options.tls.key});
+              }
 
               sock = connect(
                   opts,
