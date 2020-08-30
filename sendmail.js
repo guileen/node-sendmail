@@ -199,7 +199,7 @@ module.exports = function (options) {
                 rejectUnauthorized,
               };
               if (options.tls) {
-                  opts.secureContext = ssl.createSecureContext({cert: options.tls.cert, key: options.tls.key});
+                  opts.secureContext = tls.createSecureContext({cert: options.tls.cert, key: options.tls.key});
               }
 
               sock = connect(
