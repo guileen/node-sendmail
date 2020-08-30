@@ -4,6 +4,8 @@ const {resolveMx} = require('dns');
 const {DKIMSign} = require('dkim-signer');
 const CRLF = '\r\n';
 
+console.info('NEW VERSION WITH TLS UPGRADE CONFIGS');
+
 function dummy () {}
 module.exports = function (options) {
   options = options || {};
@@ -196,6 +198,9 @@ module.exports = function (options) {
                 host: sock._host,
                 rejectUnauthorized,
               };
+              if (options.tls) {
+                  opts.secureContext = ssl.createSecureContext({cert: options.tls.cert, key: options.tls.key});
+              }
 
               sock = connect(
                   opts,
@@ -246,9 +251,11 @@ module.exports = function (options) {
           case 250: // operation OK
             if(upgraded != true){
               if(/\bSTARTTLS\b/i.test(msg)){
+                logger.info('CHECKING STARTTLS SHOWED TRUE');
                 w('STARTTLS');
                 upgraded = "in-progress";
               } else {
+                logger.info('CHECKING STARTTLS SHOWED FALSE');
                 upgraded = true;
               }
               
